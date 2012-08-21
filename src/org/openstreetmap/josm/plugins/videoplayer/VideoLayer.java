@@ -15,6 +15,7 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.markerlayer.Marker;
 import org.openstreetmap.josm.gui.layer.markerlayer.MarkerLayer;
 
+import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber.Exception;
 import com.googlecode.javacv.OpenCVFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
@@ -68,9 +70,11 @@ public class VideoLayer extends JFrame{
 		CreateMarkerLayer();
 		this.videoPath = videoPath;
 		startGrabber();
-
-		cvNamedWindow("video");
-
+		final CanvasFrame canvas = new CanvasFrame("Video");
+		canvas.setCanvasSize(640, 480);
+		Main.map.mapView.zoomToFactor(0.15);
+		//cvNamedWindow("video");
+		//cvResizeWindow("video", 640, 480);
 		getFrame();
 
 		final Action playAction = new AbstractAction("Play") {
@@ -82,10 +86,20 @@ public class VideoLayer extends JFrame{
 					}
 					for(num = grabber.getFrameNumber();
 							num < grabber.getLengthInFrames(); num ++){
+						try {
+							KeyEvent key = canvas.waitKey(10);
+							if(key != null){
+								break;
+							}
+						} catch (InterruptedException e1) {
+
+						}
 						image = grabber.grab();
 						if (image != null) {
-							cvShowImage("video", image);
-							cvWaitKey(27);
+							canvas.showImage(image);
+							//cvShowImage("video", image);
+							//cvResizeWindow("video", 640, 480);
+							//cvWaitKey(0);
 							posIndex = wp_num*((double)grabber.getFrameNumber()/(double)frameCount);
 							int temp = 0;
 							for(WayPoint p1: wpCol){
@@ -100,6 +114,7 @@ public class VideoLayer extends JFrame{
 									"Current Position",	null, null, -1.0, 0.0);
 							markerLayer.data.add(currentPos);
 							Main.map.mapView.zoomTo(wp2.getCoor());
+
 
 							if(pause){
 								break;
@@ -145,8 +160,9 @@ public class VideoLayer extends JFrame{
 				try {
 					getFrame();
 					if (image != null) {
-						cvShowImage("video", image);
-						cvWaitKey(27);
+						canvas.showImage(image);
+						//cvShowImage("video", image);cvResizeWindow("video", 640, 480);
+						//cvWaitKey(0);
 
 						posIndex = wp_num*((double)grabber.getFrameNumber()/(double)frameCount);
 						int temp = 0;

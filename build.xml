@@ -37,7 +37,7 @@
     <property name="plugin.build.dir" value="build"/>
 	<property name="plugin.lib.dir" value="lib"/>
     <property name="plugin.src.dir" value="src"/>
-	<property name="plugin.images.dir" value="images"/>
+	
     <!-- this is the directory where the plugin jar is copied to -->
     <property name="plugin.dist.dir" value="dist"/>
     <property name="ant.build.javac.target" value="1.5"/>
@@ -85,9 +85,7 @@
     	<copy todir="${plugin.build.dir}/com">
     	            <fileset dir="com"/>
     	        </copy> 
-    	<copy todir="${plugin.images.dir}/images">
-    	    	            <fileset dir="images"/>
-    	    	        </copy> 
+    	
         <copy todir="${plugin.build.dir}">
             <fileset dir=".">
                 <include name="README"/>

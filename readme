@@ -1,3 +1,16 @@
-README==
+README
+====
 
 Visit http://wiki.openstreetmap.org/wiki/Google_Summer_of_Code/2012/Video_Based_Speed_Limit_and_Road_Sign_Detector_plugin_for_JOSM
+
+Instruction
+====
+*Import gpx file
+*Import video using 'Import video' menu from file menu.
+*Set Training file using 'Set Cascade file' button and then process for desired sign.(Currently Swedish speed limit 70 training file is available at https://github.com/nikhil9/ImageProcessor/blob/master/Swedish%2070%20Speed%20Limit.xml)
+*Play Video using 'play' button or browse frame by frame using '>' button.
+*Plugin distributes all video frames equally over gpx track.
+*For details of training images, visit wikipage.
+*If you have geotagged images use Imageprocessor plugin https://github.com/nikhil9/ImageProcessor
+ 
+For any help/bug/crash-report mail me at nikhil.spitfire@gmail.com
