@@ -9,6 +9,12 @@ import javax.swing.filechooser.FileFilter;
 import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.gui.layer.GpxLayer;
 
+/**
+ * Provides dialog to import video in josm.
+ * Videolayer object is created and videofile is provided to object.
+ * 
+ * @author nikhil
+ */
 public class ImportVideoAction extends JosmAction{
 	GpxLayer gpxLayer ;
 
@@ -20,7 +26,7 @@ public class ImportVideoAction extends JosmAction{
 
 		final JFileChooser fileChooser = new JFileChooser();
 
-		fileChooser.setFileFilter(new ImageFileFilter());
+		fileChooser.setFileFilter(new VideoFileFilter());
 
 		if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 
@@ -34,7 +40,13 @@ public class ImportVideoAction extends JosmAction{
 
 	}
 
-	private static final class ImageFileFilter extends FileFilter {
+	/**
+	 * 
+	 * @author nikhil
+	 * 
+	 * Provides filter for JFileChooser
+	 */
+	private static final class VideoFileFilter extends FileFilter {
 
 		@Override
 		public boolean accept(File file) {

@@ -16,16 +16,13 @@ import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -45,37 +42,74 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_objdetect.CascadeClassifier;
 
-
+/**
+ * This class provides GUI for plugin, creates markerlayer on map and
+ * interacts with video frames and gpx layer.
+ * @author nikhil
+ *
+ */
 public class VideoLayer extends JFrame{
+
 	private final JFileChooser fileChooser = new JFileChooser();
+	/**
+	 * Stores Location of video file
+	 */
 	public String videoPath;
-	private final JLabel imageView = new JLabel();
+	/**
+	 * IplImage for temp storage
+	 */
 	private IplImage image = null;
-	List <IplImage> imgList = new ArrayList<IplImage>();
+
+	/**
+	 * Total number of frames in video
+	 */
 	public int frameCount;
+
 	OpenCVFrameGrabber grabber;
 	GpxLayer gpxLayer;
 	MarkerLayer markerLayer;
+	/**
+	 * Current position Marker
+	 */
 	Marker 	currentPos;
-	WayPoint wp, wp2;
+	WayPoint wp, wp_temp;
+	/**
+	 * collection of waypoints from gpxdata
+	 */
 	Collection<WayPoint> wpCol;
 	int wp_num;
 	double posIndex;
 	int num, pauseNum;
 	boolean pause = false;
+	/**
+	 * Stores locations of training file
+	 */
 	public String CASCADE_FILE = null;
+
+	/**
+	 * Creates GUI which displays video and interacts with to change the
+	 * location of maker according to currnt frame.
+	 * 
+	 * @param videoPath Location of video file
+	 * @throws HeadlessException
+	 */
 
 	public VideoLayer(final String videoPath) throws HeadlessException{
 		super("VideoPlayer");
 		CreateMarkerLayer();
 		this.videoPath = videoPath;
 		startGrabber();
+
+		/**
+		 * create canvas to display images
+		 */
 		final CanvasFrame canvas = new CanvasFrame("Video");
 		canvas.setCanvasSize(640, 480);
 		Main.map.mapView.zoomToFactor(0.15);
 		//cvNamedWindow("video");
 		//cvResizeWindow("video", 640, 480);
 		getFrame();
+
 
 		final Action playAction = new AbstractAction("Play") {
 			public void actionPerformed(final ActionEvent e) {
@@ -103,17 +137,17 @@ public class VideoLayer extends JFrame{
 							posIndex = wp_num*((double)grabber.getFrameNumber()/(double)frameCount);
 							int temp = 0;
 							for(WayPoint p1: wpCol){
-								wp2 = p1;
+								wp_temp = p1;
 								if(temp > posIndex){
 									break;
 								}
 								temp ++;
 							}
 							markerLayer.data.clear();
-							currentPos = new Marker(wp2.getCoor(),
+							currentPos = new Marker(wp_temp.getCoor(),
 									"Current Position",	null, null, -1.0, 0.0);
 							markerLayer.data.add(currentPos);
-							Main.map.mapView.zoomTo(wp2.getCoor());
+							Main.map.mapView.zoomTo(wp_temp.getCoor());
 
 
 							if(pause){
@@ -167,7 +201,7 @@ public class VideoLayer extends JFrame{
 						posIndex = wp_num*((double)grabber.getFrameNumber()/(double)frameCount);
 						int temp = 0;
 						for(WayPoint p1: wpCol){
-							wp2 = p1;
+							wp_temp = p1;
 							if(temp > posIndex){
 								break;
 							}
@@ -175,10 +209,10 @@ public class VideoLayer extends JFrame{
 						}
 
 						markerLayer.data.clear();
-						currentPos = new Marker(wp2.getCoor(),
+						currentPos = new Marker(wp_temp.getCoor(),
 								"Current Position",	null, null, -1.0, 0.0);
 						markerLayer.data.add(currentPos);
-						Main.map.mapView.zoomTo(wp2.getCoor());
+						Main.map.mapView.zoomTo(wp_temp.getCoor());
 					}
 				} finally {
 					setCursor(Cursor.getDefaultCursor());
@@ -234,7 +268,12 @@ public class VideoLayer extends JFrame{
 
 	}
 
+	/**
+	 * startGrabber() starts OpenCVFrameGrabber which starts grabbing videofiles
+	 * from video
+	 */
 	public void startGrabber(){
+
 		grabber = new OpenCVFrameGrabber(videoPath);
 		try {
 			grabber.start();
@@ -249,6 +288,9 @@ public class VideoLayer extends JFrame{
 		}
 	}
 
+	/**
+	 * grabs frame from grabber and saves it to IplImage image.
+	 */
 	public void getFrame() {
 		IplImage img = null;
 		try {
@@ -260,6 +302,9 @@ public class VideoLayer extends JFrame{
 		image = img;
 	}
 
+	/**
+	 * Creats markerlayer on map with gpxdata provided by existing gpxlayer
+	 */
 	public void CreateMarkerLayer(){
 
 		Collection<Layer> layers = Main.map.mapView.getAllLayers();
@@ -291,6 +336,12 @@ public class VideoLayer extends JFrame{
 			}
 		}
 	}
+
+	/**
+	 * process input image frame for given sign detection
+	 * @param src input image frame
+	 * @return true if sign detected
+	 */
 	public boolean ProcessImage(IplImage src){
 
 		IplImage gray = cvCreateImage(cvGetSize(src), 8, 1);
@@ -323,6 +374,10 @@ public class VideoLayer extends JFrame{
 		}
 
 	}
+
+	/**
+	 * invoke JFileChooser to select cascade file
+	 */
 	public String getCascadeFile(){
 		if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 			return null;
